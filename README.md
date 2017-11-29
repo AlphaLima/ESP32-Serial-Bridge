@@ -4,5 +4,5 @@ Transparent WiFi (TCP, UDP) to all three UART Bridge, supports both AP and STATI
 
 I made this project in order to connect Flight equipment devices devices like (Logger, Vario FLARM), to Flight Computers (Kobo, Smartphones etc.),  but it is not limited to that. You can use it wherever you want, but on your own risk. Read license file for more details.
 
-Used Libraries: (must be install in the arduino IDE)
+#Used Libraries: (must be install in the arduino IDE)
 https://github.com/espressif/arduino-esp32
