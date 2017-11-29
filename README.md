@@ -10,6 +10,9 @@ Used Libraries: (must be install in the arduino IDE):
 https://github.com/espressif/arduino-esp32
 
 ===============================================================================
-usecases:
+
+example usecases:
+
 https://www.youtube.com/watch?v=K2Hia06IMtk
+
 https://www.youtube.com/watch?v=GoSxlQvuAhg
