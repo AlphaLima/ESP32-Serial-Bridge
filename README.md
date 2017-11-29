@@ -35,7 +35,7 @@ COM1 Tx   GPIO17
 COM2 Rx   GPIO09 
 COM2 Tx   GPIO10 
 
-https://tech.scargill.net/wp-content/uploads/2017/05/ESP326_thumb.jpg
+https://tech.scargill.net/wp-content/uploads/2017/05/ESP326.jpg
 
 A discussion incl. the similar ESP8266 projekt can be found here:
 
