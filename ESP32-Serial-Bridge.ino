@@ -9,16 +9,13 @@
 // user or environmental safety.
 
 #include <WiFi.h>
+#include <config.h>
+
+// config: ////////////////////////////////////////////////////////////
 
 #define NUM_COM 3
 #define DEBUG_COM 0
-bool debug = true;
-// config: ////////////////////////////////////////////////////////////
-HardwareSerial Serial1(1);
-HardwareSerial Serial2(2);
 
-
-HardwareSerial* COM[NUM_COM] = {&Serial, &Serial1 , &Serial2};
 #define UART_BAUD1 115200
 #define SERIAL_PARAM1 SERIAL_8N1
 
@@ -36,6 +33,7 @@ HardwareSerial* COM[NUM_COM] = {&Serial, &Serial1 , &Serial2};
 
 #define PROTOCOL_TCP
 //#define PROTOCOL_UDP
+bool debug = true;
 
 #ifdef MODE_AP
 // For AP mode:
@@ -65,12 +63,17 @@ const int port = 8880;
 //////////////////////////////////////////////////////////////////////////
 
 
+HardwareSerial Serial1(1);
+HardwareSerial Serial2(2);
+HardwareSerial* COM[NUM_COM] = {&Serial, &Serial1 , &Serial2};
+
+#define MAX_NMEA_CLIENTS 5
 #ifdef PROTOCOL_TCP
 #include <WiFiClient.h>
 WiFiServer server1(port);
 WiFiServer server2(port+1);
 WiFiServer server3(port+2);
-WiFiClient client[NUM_COM];
+WiFiClient client[NUM_COM][MAX_NMEA_CLIENTS];
 #endif
 
 #ifdef PROTOCOL_UDP
@@ -85,6 +88,7 @@ uint8_t i1[NUM_COM]={0,0,0};
 
 char buf2[NUM_COM][bufferSize];
 uint8_t i2[NUM_COM]={0,0,0};
+
 
 
 
@@ -124,12 +128,18 @@ void setup() {
   #endif
 
   #ifdef PROTOCOL_TCP
-  COM[0]->println("Starting TCP Server1");  
+  COM[0]->println("Starting TCP Server 1");  
+  if(debug) COM[DEBUG_COM]->println("Starting TCP Server 1");  
   server1.begin(); // start TCP server 
-  COM[1]->println("Starting TCP Server2");
+  server1.setNoDelay(true);
+  COM[1]->println("Starting TCP Server 2");
+  if(debug) COM[DEBUG_COM]->println("Starting TCP Server 2");  
   server2.begin(); // start TCP server 
-  COM[2]->println("Starting TCP Server3");
+  server2.setNoDelay(true);
+  COM[2]->println("Starting TCP Server 3");
+  if(debug) COM[DEBUG_COM]->println("Starting TCP Server 3");  
   server3.begin(); // start TCP server   
+  server3.setNoDelay(true);
   #endif
 
   #ifdef PROTOCOL_UDP
@@ -151,39 +161,81 @@ void setup() {
 void loop() {
 
  #ifdef PROTOCOL_TCP
-  if(!client[0].connected()) { // if client not connected
-    client[0] = server1.available(); // wait for it to connect
+  if (server1.hasClient())
+  {
+    for(byte i = 0; i < MAX_NMEA_CLIENTS; i++){
+      //find free/disconnected spot
+      if (!client[0][i] || !client[0][i].connected()){
+        if(client[0][i]) client[0][i].stop();
+        client[0][i] = server1.available();
+        if(debug) COM[DEBUG_COM]->print("New client for COM0: "); 
+        if(debug) COM[DEBUG_COM]->println(i);
+        continue;
+      }
+    }
+    //no free/disconnected spot so reject
+    WiFiClient TmpserverClient = server1.available();
+    TmpserverClient.stop();
   }
 
-  if(!client[1].connected()) { // if client not connected
-    client[1] = server2.available(); // wait for it to connect
-  }
 
-  if(!client[2].connected()) { // if client not connected
-    client[2] = server3.available(); // wait for it to connect
+  if (server2.hasClient())
+  {
+    for(byte i = 0; i < MAX_NMEA_CLIENTS; i++){
+      //find free/disconnected spot
+      if (!client[1][i] || !client[1][i].connected()){
+        if(client[1][i]) client[1][i].stop();
+        client[1][i] = server2.available();
+        if(debug) COM[DEBUG_COM]->print("New client for COM1: ");
+        if(debug) COM[DEBUG_COM]->println(i);
+        continue;
+      }
+    }
+    //no free/disconnected spot so reject
+    WiFiClient TmpserverClient = server2.available();
+    TmpserverClient.stop();
+  }  
 
-  }
-    
- #endif
+
+  if (server3.hasClient())
+  {
+    for(byte i = 0; i < MAX_NMEA_CLIENTS; i++){
+      //find free/disconnected spot
+      if (!client[2][i] || !client[2][i].connected()){
+        if(client[2][i]) client[2][i].stop();
+        client[2][i] = server3.available();
+        if(debug) COM[DEBUG_COM]->print("New client for COM3: ");
+        if(debug) COM[DEBUG_COM]->println(i);
+        continue;
+      }
+    }
+    //no free/disconnected spot so reject
+    WiFiClient TmpserverClient = server2.available();
+    TmpserverClient.stop();
+  }  
+#endif
  
   for(int num= 0; num < NUM_COM ; num++)
   {
-    if(client[num].available()) 
-    {
-      while(client[num].available())
+    for(byte i = 0; i < MAX_NMEA_CLIENTS; i++)
+    {         
+      if(client[num][i]) 
       {
-        buf1[num][i1[num]] = (uint8_t)client[num].read(); // read char from client (RoboRemo app)
-        if(i1[num]<bufferSize-1) i1[num]++;
-      }      
-      buf1[num][i1[num]+1] = 0;      
-      /*
-      if(debug) COM[DEBUG_COM]->print("> Port");
-      if(debug) COM[DEBUG_COM]->print(port + num);
-      if(debug) COM[DEBUG_COM]->print(":");
-      if(debug) COM[DEBUG_COM]->println((char*)buf1[num]);
-      */
-      COM[num]->write(buf1[num], i1[num]); // now send to UART(num):
-      i1[num] = 0;
+        while(client[num][i].available())
+        {
+          buf1[num][i1[num]] = (uint8_t)client[num][i].read(); // read char from client (RoboRemo app)
+          if(i1[num]<bufferSize-1) i1[num]++;
+        }      
+        buf1[num][i1[num]+1] = 0;      
+        /*
+        if(debug) COM[DEBUG_COM]->print("> Port");
+        if(debug) COM[DEBUG_COM]->print(port + num);
+        if(debug) COM[DEBUG_COM]->print(":");
+        if(debug) COM[DEBUG_COM]->println((char*)buf1[num]);
+        */
+        COM[num]->write(buf1[num], i1[num]); // now send to UART(num):
+        i1[num] = 0;
+      }
     }
   
     if(COM[num]->available())
@@ -195,14 +247,19 @@ void loop() {
       }
       // now send to WiFi:
       buf2[num][i2[num]+1] = 0;
-      /*
+  /*    
       if(debug) COM[DEBUG_COM]->print("> UART");
-      if(debug) COM[DEBUG_COM]->print(num);
+      if(debug) COM[DEBUG_COM]->print(num+1);
       if(debug) COM[DEBUG_COM]->print(":");
       if(debug) COM[DEBUG_COM]->println(buf2[num]);
-      client[num].write((char*)buf2[num], i2[num]);
       */
+      for(byte i = 0; i < MAX_NMEA_CLIENTS; i++)
+      {   
+        if(client[num][i])                     
+          client[num][i].write((char*)buf2[num], i2[num]);
+      }
       i2[num] = 0;
     }    
   }
 }
+
