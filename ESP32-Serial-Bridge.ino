@@ -13,19 +13,24 @@
 
 // config: ////////////////////////////////////////////////////////////
 
-#define NUM_COM 3
-#define DEBUG_COM 0
+#define NUM_COM   3                 // total number of COM Ports
+#define DEBUG_COM 0                 // debug output to COM0
 
-#define UART_BAUD1 115200
+#define UART_BAUD0 19200            // Configure UART0
+#define SERIAL_PARAM0 SERIAL_8N1
+#define SERIAL0_RXPIN 3 
+#define SERIAL0_TXPIN 1 
+
+#define UART_BAUD1 19200            // Configure UART1
 #define SERIAL_PARAM1 SERIAL_8N1
+#define SERIAL1_RXPIN 2 
+#define SERIAL1_TXPIN 4 
 
-#define UART_BAUD2 19200
+#define UART_BAUD2 19200            // Configure UART2
 #define SERIAL_PARAM2 SERIAL_8N1
+#define SERIAL2_RXPIN 16 
+#define SERIAL2_TXPIN 17
 
-#define UART_BAUD3 19200
-#define SERIAL_PARAM3 SERIAL_8N1
-
-#define packTimeout 2 // ms (if nothing more on UART, then send packet)
 #define bufferSize 8192
 
 #define MODE_AP // phone connects directly to ESP
@@ -67,7 +72,7 @@ HardwareSerial Serial1(1);
 HardwareSerial Serial2(2);
 HardwareSerial* COM[NUM_COM] = {&Serial, &Serial1 , &Serial2};
 
-#define MAX_NMEA_CLIENTS 5
+#define MAX_NMEA_CLIENTS 4
 #ifdef PROTOCOL_TCP
 #include <WiFiClient.h>
 WiFiServer server1(port);
@@ -96,9 +101,9 @@ void setup() {
 
   delay(500);
   
-  COM[0]->begin(UART_BAUD1, SERIAL_PARAM1);
-  COM[1]->begin(UART_BAUD2, SERIAL_PARAM2);
-  COM[2]->begin(UART_BAUD3, SERIAL_PARAM3);
+  COM[0]->begin(UART_BAUD0, SERIAL_PARAM0, SERIAL0_RXPIN, SERIAL0_TXPIN);
+  COM[1]->begin(UART_BAUD1, SERIAL_PARAM1, SERIAL1_RXPIN, SERIAL1_TXPIN);
+  COM[2]->begin(UART_BAUD2, SERIAL_PARAM2, SERIAL2_RXPIN, SERIAL2_TXPIN);
   
   if(debug) COM[DEBUG_COM]->println("\n\nLK8000 WiFi serial bridge V1.00");
   #ifdef MODE_AP 
@@ -225,9 +230,9 @@ void loop() {
         {
           buf1[num][i1[num]] = (uint8_t)client[num][i].read(); // read char from client (RoboRemo app)
           if(i1[num]<bufferSize-1) i1[num]++;
-        }      
-        buf1[num][i1[num]+1] = 0;      
-        /*
+        } 
+        /*     
+        buf1[num][i1[num]+1] = 0;              
         if(debug) COM[DEBUG_COM]->print("> Port");
         if(debug) COM[DEBUG_COM]->print(port + num);
         if(debug) COM[DEBUG_COM]->print(":");
@@ -246,8 +251,8 @@ void loop() {
         if(i2[num]<bufferSize-1) i2[num]++;
       }
       // now send to WiFi:
-      buf2[num][i2[num]+1] = 0;
-  /*    
+      /*
+      buf2[num][i2[num]+1] = 0;    
       if(debug) COM[DEBUG_COM]->print("> UART");
       if(debug) COM[DEBUG_COM]->print(num+1);
       if(debug) COM[DEBUG_COM]->print(":");
