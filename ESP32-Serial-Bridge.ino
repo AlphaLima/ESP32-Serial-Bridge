@@ -15,21 +15,24 @@
 
 #define NUM_COM   3                 // total number of COM Ports
 #define DEBUG_COM 0                 // debug output to COM0
-
-#define UART_BAUD0 19200            // Configure UART0
-#define SERIAL_PARAM0 SERIAL_8N1
-#define SERIAL0_RXPIN 3 
-#define SERIAL0_TXPIN 1 
-
-#define UART_BAUD1 19200            // Configure UART1
-#define SERIAL_PARAM1 SERIAL_8N1
-#define SERIAL1_RXPIN 2 
-#define SERIAL1_TXPIN 4 
-
-#define UART_BAUD2 19200            // Configure UART2
-#define SERIAL_PARAM2 SERIAL_8N1
-#define SERIAL2_RXPIN 16 
-#define SERIAL2_TXPIN 17
+/*************************  COM Port 0 *******************************/
+#define UART_BAUD0 19200            // Baudrate UART0
+#define SERIAL_PARAM0 SERIAL_8N1    // Data/Parity/Stop UART0
+#define SERIAL0_RXPIN 3             // receive Pin UART0
+#define SERIAL0_TXPIN 1             // transmit Pin UART0
+#define SERIAL0_TCP_PORT 8880       // Wifi Port UART0
+/*************************  COM Port 1 *******************************/
+#define UART_BAUD1 19200            // Baudrate UART1
+#define SERIAL_PARAM1 SERIAL_8N1    // Data/Parity/Stop UART1
+#define SERIAL1_RXPIN 2             // receive Pin UART1
+#define SERIAL1_TXPIN 4             // transmit Pin UART1
+#define SERIAL1_TCP_PORT 8881       // Wifi Port UART1
+/*************************  COM Port 2 *******************************/
+#define UART_BAUD2 19200            // Baudrate UART2
+#define SERIAL_PARAM2 SERIAL_8N1    // Data/Parity/Stop UART2
+#define SERIAL2_RXPIN 16            // receive Pin UART2
+#define SERIAL2_TXPIN 17            // transmit Pin UART2
+#define SERIAL2_TCP_PORT 8882       // Wifi Port UART2
 
 #define bufferSize 8192
 
@@ -46,7 +49,7 @@ const char *ssid = "LK8000";  // You will connect your phone to this Access Poin
 const char *pw = "Flightcomputer"; // and this is the password
 IPAddress ip(192, 168, 4, 1); // From RoboRemo app, connect to this IP
 IPAddress netmask(255, 255, 255, 0);
-const int port = 8880; // and this port
+
 // You must connect the phone to this AP, then:
 // menu -> connect -> Internet(TCP) -> 192.168.4.1:8880  for UART0
 //                                  -> 192.168.4.1:8881  for UART1
@@ -57,7 +60,7 @@ const int port = 8880; // and this port
 // For STATION mode:
 const char *ssid = "YourSSID";  // Your ROUTER SSID
 const char *pw = "password"; // and WiFi PASSWORD
-const int port = 8880;
+
 // You must connect the phone to the same router,
 // Then somehow find the IP that the ESP got from router, then:
 // menu -> connect -> Internet(TCP) -> [ESP_IP]:8880  for UART0
@@ -75,9 +78,10 @@ HardwareSerial* COM[NUM_COM] = {&Serial, &Serial1 , &Serial2};
 #define MAX_NMEA_CLIENTS 4
 #ifdef PROTOCOL_TCP
 #include <WiFiClient.h>
-WiFiServer server1(port);
-WiFiServer server2(port+1);
-WiFiServer server3(port+2);
+WiFiServer server_0(SERIAL0_TCP_PORT);
+WiFiServer server_1(SERIAL1_TCP_PORT);
+WiFiServer server_2(SERIAL2_TCP_PORT);
+WiFiServer *server[NUM_COM]={&server_0,&server_1,&server_2};
 WiFiClient client[NUM_COM][MAX_NMEA_CLIENTS];
 #endif
 
@@ -135,135 +139,103 @@ void setup() {
   #ifdef PROTOCOL_TCP
   COM[0]->println("Starting TCP Server 1");  
   if(debug) COM[DEBUG_COM]->println("Starting TCP Server 1");  
-  server1.begin(); // start TCP server 
-  server1.setNoDelay(true);
+  server[0]->begin(); // start TCP server 
+  server[0]->setNoDelay(true);
   COM[1]->println("Starting TCP Server 2");
   if(debug) COM[DEBUG_COM]->println("Starting TCP Server 2");  
-  server2.begin(); // start TCP server 
-  server2.setNoDelay(true);
+  server[1]->begin(); // start TCP server 
+  server[1]->setNoDelay(true);
   COM[2]->println("Starting TCP Server 3");
   if(debug) COM[DEBUG_COM]->println("Starting TCP Server 3");  
-  server3.begin(); // start TCP server   
-  server3.setNoDelay(true);
+  server[2]->begin(); // start TCP server   
+  server[2]->setNoDelay(true);
   #endif
 
   #ifdef PROTOCOL_UDP
-
   if(debug) COM[DEBUG_COM]->println("Starting UDP Server 1");
-  udp.begin(port); // start UDP server 
+  udp.begin(SERIAL0_TCP_PORT); // start UDP server 
 
   if(debug) COM[DEBUG_COM]->println("Starting UDP Server 2");
-  udp.begin(port+1); // start UDP server 
+  udp.begin(SERIAL1_TCP_PORT); // start UDP server 
 
   if(debug) COM[DEBUG_COM]->println("Starting UDP Server 3");
-  udp.begin(port+); // start UDP server 
-  
-     
+  udp.begin(SERIAL2_TCP_PORT); // start UDP server      
   #endif
 }
 
 
-void loop() {
-
- #ifdef PROTOCOL_TCP
-  if (server1.hasClient())
+void loop() 
+{  
+#ifdef PROTOCOL_TCP
+  for(int num= 0; num < NUM_COM ; num++)
   {
-    for(byte i = 0; i < MAX_NMEA_CLIENTS; i++){
-      //find free/disconnected spot
-      if (!client[0][i] || !client[0][i].connected()){
-        if(client[0][i]) client[0][i].stop();
-        client[0][i] = server1.available();
-        if(debug) COM[DEBUG_COM]->print("New client for COM0: "); 
-        if(debug) COM[DEBUG_COM]->println(i);
-        continue;
+    if (server[num]->hasClient())
+    {
+      for(byte i = 0; i < MAX_NMEA_CLIENTS; i++){
+        //find free/disconnected spot
+        if (!client[num][i] || !client[num][i].connected()){
+          if(client[num][i]) client[num][i].stop();
+          client[num][i] = server[num]->available();
+          if(debug) COM[DEBUG_COM]->print("New client for COM"); 
+          if(debug) COM[DEBUG_COM]->print(num); 
+          if(debug) COM[DEBUG_COM]->println(i);
+          continue;
+        }
       }
+      //no free/disconnected spot so reject
+      WiFiClient TmpserverClient = server[num]->available();
+      TmpserverClient.stop();
     }
-    //no free/disconnected spot so reject
-    WiFiClient TmpserverClient = server1.available();
-    TmpserverClient.stop();
   }
-
-
-  if (server2.hasClient())
-  {
-    for(byte i = 0; i < MAX_NMEA_CLIENTS; i++){
-      //find free/disconnected spot
-      if (!client[1][i] || !client[1][i].connected()){
-        if(client[1][i]) client[1][i].stop();
-        client[1][i] = server2.available();
-        if(debug) COM[DEBUG_COM]->print("New client for COM1: ");
-        if(debug) COM[DEBUG_COM]->println(i);
-        continue;
-      }
-    }
-    //no free/disconnected spot so reject
-    WiFiClient TmpserverClient = server2.available();
-    TmpserverClient.stop();
-  }  
-
-
-  if (server3.hasClient())
-  {
-    for(byte i = 0; i < MAX_NMEA_CLIENTS; i++){
-      //find free/disconnected spot
-      if (!client[2][i] || !client[2][i].connected()){
-        if(client[2][i]) client[2][i].stop();
-        client[2][i] = server3.available();
-        if(debug) COM[DEBUG_COM]->print("New client for COM3: ");
-        if(debug) COM[DEBUG_COM]->println(i);
-        continue;
-      }
-    }
-    //no free/disconnected spot so reject
-    WiFiClient TmpserverClient = server2.available();
-    TmpserverClient.stop();
-  }  
 #endif
  
   for(int num= 0; num < NUM_COM ; num++)
   {
-    for(byte i = 0; i < MAX_NMEA_CLIENTS; i++)
-    {         
-      if(client[num][i]) 
-      {
-        while(client[num][i].available())
-        {
-          buf1[num][i1[num]] = (uint8_t)client[num][i].read(); // read char from client (RoboRemo app)
-          if(i1[num]<bufferSize-1) i1[num]++;
-        } 
-        /*     
-        buf1[num][i1[num]+1] = 0;              
-        if(debug) COM[DEBUG_COM]->print("> Port");
-        if(debug) COM[DEBUG_COM]->print(port + num);
-        if(debug) COM[DEBUG_COM]->print(":");
-        if(debug) COM[DEBUG_COM]->println((char*)buf1[num]);
-        */
-        COM[num]->write(buf1[num], i1[num]); // now send to UART(num):
-        i1[num] = 0;
-      }
-    }
-  
-    if(COM[num]->available())
+    if(COM[num] != NULL)          
     {
-      while(COM[num]->available())
-      {     
-        buf2[num][i2[num]] = (char)COM[num]->read(); // read char from UART(num)
-        if(i2[num]<bufferSize-1) i2[num]++;
+      for(byte cln = 0; cln < MAX_NMEA_CLIENTS; cln++)
+      {               
+        if(client[num][cln]) 
+        {
+          while(client[num][cln].available())
+          {
+            buf1[num][i1[num]] = (uint8_t)client[num][cln].read(); // read char from client (LK8000 app)
+            if(i1[num]<bufferSize-1) i1[num]++;
+          } 
+          /*     
+          buf1[num][i1[num]+1] = 0;              
+          if(debug) COM[DEBUG_COM]->print("> Port");
+          if(debug) COM[DEBUG_COM]->print(port + num);
+          if(debug) COM[DEBUG_COM]->print(":");
+          if(debug) COM[DEBUG_COM]->println((char*)buf1[num]);
+          */
+          COM[num]->write(buf1[num], i1[num]); // now send to UART(num):
+          i1[num] = 0;
+        }
       }
-      // now send to WiFi:
-      /*
-      buf2[num][i2[num]+1] = 0;    
-      if(debug) COM[DEBUG_COM]->print("> UART");
-      if(debug) COM[DEBUG_COM]->print(num+1);
-      if(debug) COM[DEBUG_COM]->print(":");
-      if(debug) COM[DEBUG_COM]->println(buf2[num]);
-      */
-      for(byte i = 0; i < MAX_NMEA_CLIENTS; i++)
-      {   
-        if(client[num][i])                     
-          client[num][i].write((char*)buf2[num], i2[num]);
+  
+      if(COM[num]->available())
+      {
+        while(COM[num]->available())
+        {     
+          buf2[num][i2[num]] = (char)COM[num]->read(); // read char from UART(num)
+          if(i2[num]<bufferSize-1) i2[num]++;
+        }
+        // now send to WiFi:
+        /*
+        buf2[num][i2[num]+1] = 0;    
+        if(debug) COM[DEBUG_COM]->print("> UART");
+        if(debug) COM[DEBUG_COM]->print(num+1);
+        if(debug) COM[DEBUG_COM]->print(":");
+        if(debug) COM[DEBUG_COM]->println(buf2[num]);
+        */
+        for(byte cln = 0; cln < MAX_NMEA_CLIENTS; cln++)
+        {   
+          if(client[num][cln])                     
+            client[num][cln].write((char*)buf2[num], i2[num]);
+        }
+        i2[num] = 0;
       }
-      i2[num] = 0;
     }    
   }
 }
