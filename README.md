@@ -30,10 +30,10 @@ I recomend to start your project with a Node32s or compatible Evalution board. F
 Pinning 
 COM0 Rx   GPIO03 
 COM0 Tx   GPIO01 
-COM1 Rx   GPIO16 
-COM1 Tx   GPIO17 
-COM2 Rx   GPIO09 
-COM2 Tx   GPIO10 
+COM1 Rx   GPIO02 
+COM1 Tx   GPIO04 
+COM2 Rx   GPIO16
+COM2 Tx   GPIO17 
 
 https://tech.scargill.net/wp-content/uploads/2017/05/ESP326.jpg
 
