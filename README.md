@@ -12,7 +12,7 @@ Used Ports:
 
 ===============================================================
 
-Used Libraries: (must be install in the arduino IDE):
+Used Libraries: (must be installed in the arduino IDE):
 
 https://github.com/espressif/arduino-esp32
 
