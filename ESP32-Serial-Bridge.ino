@@ -93,10 +93,10 @@ IPAddress remoteIp;
 
 
 uint8_t buf1[NUM_COM][bufferSize];
-uint8_t i1[NUM_COM]={0,0,0};
+uint16_t i1[NUM_COM]={0,0,0};
 
 char buf2[NUM_COM][bufferSize];
-uint8_t i2[NUM_COM]={0,0,0};
+uint16_t i2[NUM_COM]={0,0,0};
 
 
 
