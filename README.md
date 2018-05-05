@@ -37,12 +37,12 @@ https://www.youtube.com/watch?v=GoSxlQvuAhg
 here is the wiring diagram recomendation:
 https://raw.githubusercontent.com/AlphaLima/ESP32-Serial-Bridge/master/ESP32-SerialBridge.jpg
 Pinning 
-COM0 Rx   GPIO03 
+COM0 Rx   GPIO21 
 COM0 Tx   GPIO01 
-COM1 Rx   GPIO02 
-COM1 Tx   GPIO04 
-COM2 Rx   GPIO16
-COM2 Tx   GPIO17 
+COM1 Rx   GPIO16 
+COM1 Tx   GPIO17 
+COM2 Rx   GPIO15
+COM2 Tx   GPIO04 
 
 I recomend to start your project with a Node32s or compatible Evalution board. For a TTL to RS232 Level conversion search google for "TTL RS3232 Converter"
 
