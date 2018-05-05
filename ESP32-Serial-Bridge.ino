@@ -7,14 +7,21 @@
 // user or environmental safety.
 
 #include "config.h"
+#include <esp_wifi.h>
 #include <WiFi.h>
+
+
+
+
+#ifdef BLUETOOTH
 #include <BluetoothSerial.h>
-
-
-
 BluetoothSerial SerialBT; 
+#endif
 
+#ifdef OTA_HANDLER  
+#include <ArduinoOTA.h> 
 
+#endif // OTA_HANDLER
 
 HardwareSerial Serial1(1);
 HardwareSerial Serial2(2);
@@ -81,11 +88,42 @@ void setup() {
   if(debug) COM[DEBUG_COM]->println("\nWiFi connected");
   
   #endif
-
+#ifdef BLUETOOTH
   if(debug) COM[DEBUG_COM]->println("Open Bluetooth Server");  
   SerialBT.begin(ssid); //Bluetooth device name
- 
-  
+ #endif
+#ifdef OTA_HANDLER  
+  ArduinoOTA
+    .onStart([]() {
+      String type;
+      if (ArduinoOTA.getCommand() == U_FLASH)
+        type = "sketch";
+      else // U_SPIFFS
+        type = "filesystem";
+
+      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+      Serial.println("Start updating " + type);
+    })
+    .onEnd([]() {
+      Serial.println("\nEnd");
+    })
+    .onProgress([](unsigned int progress, unsigned int total) {
+      Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+    })
+    .onError([](ota_error_t error) {
+      Serial.printf("Error[%u]: ", error);
+      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+    });
+  // if DNSServer is started with "*" for domain name, it will reply with
+  // provided IP to all DNS request
+
+  ArduinoOTA.begin();
+#endif // OTA_HANDLER    
+
   #ifdef PROTOCOL_TCP
   COM[0]->println("Starting TCP Server 1");  
   if(debug) COM[DEBUG_COM]->println("Starting TCP Server 1");  
@@ -111,11 +149,18 @@ void setup() {
   if(debug) COM[DEBUG_COM]->println("Starting UDP Server 3");
   udp.begin(SERIAL2_TCP_PORT); // start UDP server      
   #endif
+
+  esp_err_t esp_wifi_set_max_tx_power(50);  //lower WiFi Power
 }
 
 
 void loop() 
 {  
+#ifdef OTA_HANDLER  
+  ArduinoOTA.handle();
+#endif // OTA_HANDLER
+  
+#ifdef BLUETOOTH
   // receive from Bluetooth:
   if(SerialBT.hasClient()) 
   {
@@ -128,6 +173,7 @@ void loop()
       COM[num]->write(BTbuf,iBT); // now send to UART(num):          
     iBT = 0;
   }  
+#endif  
 #ifdef PROTOCOL_TCP
   for(int num= 0; num < NUM_COM ; num++)
   {
@@ -183,10 +229,12 @@ void loop()
           if(TCPClient[num][cln])                     
             TCPClient[num][cln].write(buf2[num], i2[num]);
         }
+#ifdef BLUETOOTH        
         // now send to Bluetooth:
         if(SerialBT.hasClient())      
           SerialBT.write(buf2[num], i2[num]);        
         i2[num] = 0;
+#endif        
       }
     }    
   }
