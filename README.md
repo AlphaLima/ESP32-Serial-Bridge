@@ -18,6 +18,15 @@ https://github.com/espressif/arduino-esp32
 
 ===============================================================
 
+In some cases the memorylayout is to small for this scetch.
+If you face this problem you can either disable Bluetooth by removing
+#define BLUETOOTH
+in config.h 
+or change the partition size as described here:
+https://desire.giesecke.tk/index.php/2018/04/20/change-partition-size-arduino-ide/
+
+===============================================================
+
 example usecases:
 
 https://www.youtube.com/watch?v=K2Hia06IMtk
