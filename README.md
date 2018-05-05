@@ -5,7 +5,7 @@ I made this project in order to connect Flight equipment devices devices like (R
 Accesspoint IPAdress: 192.168.4.1
 AP SSID: LK8000
 AP Password: Flightcomputer
-Used Ports:
+Used Ports:                                                    
 192.168.4.1:8880  <-> COM0                                     
 192.168.4.1:8881  <-> COM1                                     
 192.168.4.1:8882  <-> COM2                                     
@@ -35,8 +35,8 @@ https://www.youtube.com/watch?v=GoSxlQvuAhg
 
 # Hardware
 here is the wiring diagram recomendation:
-https://raw.githubusercontent.com/AlphaLima/ESP32-Serial-Bridge/master/ESP32-SerialBridge.jpg
-Pinning 
+https://raw.githubusercontent.com/AlphaLima/ESP32-Serial-Bridge/master/ESP32-SerialBridge.jpg               
+Pinning                                                                                     
 COM0 Rx <-> GPIO21                                                                               
 COM0 Tx <-> GPIO01                                                                                 
 COM1 Rx <-> GPIO16                                                                               
