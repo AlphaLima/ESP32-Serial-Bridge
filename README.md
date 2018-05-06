@@ -47,7 +47,7 @@ COM2 Tx <-> GPIO04
 
 NOTE: The PIN assignment has changed and may not look straigt forward (other PINs are marke as Rx/Tx), but this assignment allows to flash via USB also with hooked MAX3232 serial drivers.
 
-I recomend to start your project with a Node32s or compatible Evalution board. For a TTL to RS232 Level conversion search google for "TTL RS3232 Converter"
+I recomend to start your project with a Node32s or compatible evaluation board. For a TTL to RS232 level conversion search google for "TTL RS3232 Converter"
 
 
 
