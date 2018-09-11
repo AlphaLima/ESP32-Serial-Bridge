@@ -232,9 +232,9 @@ void loop()
 #ifdef BLUETOOTH        
         // now send to Bluetooth:
         if(SerialBT.hasClient())      
-          SerialBT.write(buf2[num], i2[num]);        
+          SerialBT.write(buf2[num], i2[num]);               
+#endif  
         i2[num] = 0;
-#endif        
       }
     }    
   }
