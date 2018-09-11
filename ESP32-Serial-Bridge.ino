@@ -37,12 +37,6 @@ WiFiServer *server[NUM_COM]={&server_0,&server_1,&server_2};
 WiFiClient TCPClient[NUM_COM][MAX_NMEA_CLIENTS];
 #endif
 
-#ifdef PROTOCOL_UDP
-#include <WiFiUdp.h>
-WiFiUDP udp;
-IPAddress remoteIp;
-#endif
-
 
 uint8_t buf1[NUM_COM][bufferSize];
 uint16_t i1[NUM_COM]={0,0,0};
@@ -137,17 +131,6 @@ void setup() {
   if(debug) COM[DEBUG_COM]->println("Starting TCP Server 3");  
   server[2]->begin(); // start TCP server   
   server[2]->setNoDelay(true);
-  #endif
-
-  #ifdef PROTOCOL_UDP
-  if(debug) COM[DEBUG_COM]->println("Starting UDP Server 1");
-  udp.begin(SERIAL0_TCP_PORT); // start UDP server 
-
-  if(debug) COM[DEBUG_COM]->println("Starting UDP Server 2");
-  udp.begin(SERIAL1_TCP_PORT); // start UDP server 
-
-  if(debug) COM[DEBUG_COM]->println("Starting UDP Server 3");
-  udp.begin(SERIAL2_TCP_PORT); // start UDP server      
   #endif
 
   esp_err_t esp_wifi_set_max_tx_power(50);  //lower WiFi Power
