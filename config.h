@@ -3,14 +3,14 @@
 //#define BLUETOOTH
 #define OTA_HANDLER 
 #define MODE_AP // phone connects directly to ESP
-//#define MODE_STA // ESP connects to WiFi router
+
 
 #define PROTOCOL_TCP
-//#define PROTOCOL_UDP
+
 bool debug = true;
 
 #define VERSION "1.10"
-#ifdef MODE_AP
+
 // For AP mode:
 const char *ssid = "LK8000";  // You will connect your phone to this Access Point
 const char *pw = "Flightcomputer"; // and this is the password
@@ -21,24 +21,11 @@ IPAddress netmask(255, 255, 255, 0);
 // menu -> connect -> Internet(TCP) -> 192.168.4.1:8880  for UART0
 //                                  -> 192.168.4.1:8881  for UART1
 //                                  -> 192.168.4.1:8882  for UART2
-#endif
 
 
-#ifdef MODE_STA
-// For STATION mode:
-
-// You must connect the phone to the same router,
-// Then somehow find the IP that the ESP got from router, then:
-// menu -> connect -> Internet(TCP) -> [ESP_IP]:8880  for UART0
-//                                  -> [ESP_IP]:8881  for UART1
-//                                  -> [ESP_IP]:8882  for UART2
-#endif
 
 
-/*************************  COM Port 3 (SoftwareSerial) **************/
-//#define SERIAL3_RXPIN 21            // receive Pin UART3
-//#define SERIAL3_TXPIN 22            // transmit Pin UART3
-  
+
 #define NUM_COM   3                 // total number of COM Ports
 #define DEBUG_COM 0                 // debug output to COM0
 /*************************  COM Port 0 *******************************/
