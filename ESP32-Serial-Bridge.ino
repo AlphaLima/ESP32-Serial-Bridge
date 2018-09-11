@@ -23,9 +23,9 @@ BluetoothSerial SerialBT;
 
 #endif // OTA_HANDLER
 
-HardwareSerial Serial1(1);
-HardwareSerial Serial2(2);
-HardwareSerial* COM[NUM_COM] = {&Serial, &Serial1 , &Serial2};
+HardwareSerial Serial_one(1);
+HardwareSerial Serial_two(2);
+HardwareSerial* COM[NUM_COM] = {&Serial, &Serial_one , &Serial_two};
 
 #define MAX_NMEA_CLIENTS 4
 #ifdef PROTOCOL_TCP
