@@ -57,6 +57,4 @@ I recomend to start your project with a Node32s or compatible evaluation board. 
 
 https://tech.scargill.net/wp-content/uploads/2017/05/ESP326.jpg
 
-A discussion incl. the similar ESP8266 projekt can be found here:
 
-http://www.postfrontal.com/forum/topic.asp?TOPIC_ID=8467
