@@ -29,6 +29,7 @@ or change the partition size as described here:
 https://desire.giesecke.tk/index.php/2018/04/20/change-partition-size-arduino-ide/
 
 Arduino hardware configuration:
+
 https://github.com/AlphaLima/ESP32-Serial-Bridge/blob/master/Settings.jpg
 
 ===============================================================
