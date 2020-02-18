@@ -17,6 +17,8 @@ Used Libraries: (must be installed in the arduino IDE):
 
 https://github.com/espressif/arduino-esp32
 
+https://drive.google.com/open?id=1b0LQTc2LjJdBwVk1Ib3i7UFf4M-QXFBp
+
 ===============================================================
 
 In some cases the memorylayout is to small for this scetch.
