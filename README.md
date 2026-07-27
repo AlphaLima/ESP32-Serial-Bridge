@@ -40,7 +40,7 @@ https://www.youtube.com/watch?v=K2Hia06IMtk
 https://www.youtube.com/watch?v=GoSxlQvuAhg
 
 # Hardware
-here is the wiring diagram recomendation:
+here is the wiring diagram recommendation:
 https://raw.githubusercontent.com/AlphaLima/ESP32-Serial-Bridge/master/ESP32-SerialBridge.jpg             
 Pinning                                                                                     
 COM0 Rx <-> GPIO21                                                                               
